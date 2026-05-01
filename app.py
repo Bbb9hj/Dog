@@ -1,22 +1,19 @@
 import os
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 
-# تهيئة التطبيق: قمنا بتحديد '.' كمجلد للقوالب لقراءة index.html من الجذر مباشرة
+# إعداد التطبيق ليعمل في المجلد الرئيسي مباشرة بدون الحاجة لمجلد templates
 app = Flask(__name__, template_folder='.')
 
 @app.route('/')
 def index():
-    """المسار الرئيسي الذي يعرض واجهة المتجر"""
     return render_template('index.html')
 
-@app.route('/api/health')
-def health_check():
-    """مسار للتحقق من أن التطبيق يعمل بشكل سليم"""
-    return jsonify({"status": "online", "message": "Store is running"}), 200
+# مسار إضافي للتعامل مع أي طلبات فرعية وتوجيهها للرئيسية
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    # الحصول على المنفذ من متغيرات البيئة (مهم جداً للتشغيل على Render)
-    # إذا لم يتوفر، سيستخدم المنفذ 3000 بشكل افتراضي
-    port = int(os.environ.get('PORT', 3000))
-    # تشغيل التطبيق على العنوان 0.0.0.0 ليكون متاحاً للإنترنت
+    # الحصول على المنفذ من البيئة (مهم جداً لـ Render) أو استخدام 3000 افتراضياً
+    port = int(os.environ.get("PORT", 3000))
     app.run(host='0.0.0.0', port=port)
